@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include <getopt.h>
 #include <sys/wait.h>
+#include <cstdlib>
 
 using namespace std;
 
@@ -39,26 +40,32 @@ int main(int argc, char *argv[]) {
   int option;       // user command line option
   int pr_count = 0; // number of active children
   int pr_limit = 3; // max number of children allowed to execute at a time (when one ends, launch another)
-
   while ( (option = getopt(argc, argv, "N:n:") ) != -1 ) {
     switch(option) {
       case 'N':
-      case 'n':
-        for(int i = 2; i <= argc; i++) {
-          cout << argv[i] << endl; 
+      case 'n': {
+        int n = atoi(argv[2]);  
+        for(int i = 0; i < n; i++) {
           pid_t pid = fork();
-          if(pid == -1) // child should return 0 if successful fork, -1 if error
+          if(pid == -1) // child should return >= 0 if successful fork, -1 if error
             {perror("fork");}
-          else if(pid == 0)
-            {cout << "child: " << pid << endl;}
+          else if(pid == 0) {
+            cout << "I am a Child, PID: " << pid << endl;
+            sleep(1);
+            exit(0);
+          }
           else if(pid > 0) {
             //parent
-            wait(0);
-            cout << "parent: " << pid << endl;
+            cout << "I am Parent, PID: "<< pid << endl;
+            wait(NULL); 
           }
             
-        }
+        } 
         break;
+      }
+      
+      
+      
       default:
         printUsage();
         break;
