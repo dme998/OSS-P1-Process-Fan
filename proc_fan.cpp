@@ -16,7 +16,7 @@
 using namespace std;
 
 void printUsage() {
-  cout << "Usage: proc_fan -n <number of processes> <process name>" << endl;
+  cout << "Usage: proc_fan -n <pr_limit> <process or file name>" << endl;
   exit(1);
 }
 
@@ -62,7 +62,7 @@ int main(int argc, char *argv[]) {
           
                   
           if(pid == -1) {
-            perror("perror: fork failed."); 
+            perror("perror: fork failed"); 
           }
           else if (pid >= 0) {
             pr_count++; //fork successful
@@ -80,7 +80,7 @@ int main(int argc, char *argv[]) {
             args[0] = (char*)program.c_str(); //convert type for use in exec
             args[1] = NULL; //array must end in NULL to avoid seg fault
             if( execvp(args[0],args) == -1 ) {
-              perror("perror: exec.");
+              perror("perror: execvp");
             }
             exit(0);
           }

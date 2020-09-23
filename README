@@ -9,21 +9,27 @@ Usage: $  ./proc_fan -n <pr_limit> <exe1> <exe2> <exe3> ...
 
 The option -n is required.  
 
-The following parameter <pr_limit> is required and has a max of 20.
-  This parameter specifies the max number of child process allowed to run at any given time.
+The parameter <pr_limit> is required and has a max of 20.
+  Specifies the max number of child process allowed to run at any given time.
   Once the limit is reached, the parent will wait until a child terminates 
   before launching another.
 
-All parameters following <pr_limit> are executables to be launched.
+All parameters following <pr_limit> are executables to be launched or files to be read.
   Example usage: 
     $  ./proc_fan -n 3 testsim1 testsim2 testsim3 testsim4
-
-    In the above example, proc_fan will exec 3 processes: testsim1, testsim2, and testsim3.
-    Once one of these processes terminates, it will exec testsim4.
+      In the above example, proc_fan will exec 3 processes: testsim1, testsim2, and testsim3.
+      Once one of these processes terminates, it will exec testsim4.
+  
+  You can also read text files that contain separated programs to be run.
+  Example usage:
+    $  ./proc_fan -n 3 test.dat
+    where test.dat looks like this:
+      ./testsim1
+      ./testsim2
+      ./testsim3
 
     
 Limitations:
   -Does not support parameters for exec'd programs.
     For example, $  ./proc_fan -n 5 testsim 4 5
       will not work, because '4' and '5' will be treated as programs.  
-  -Does not support reading from a file.
