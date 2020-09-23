@@ -76,6 +76,7 @@ int main(int argc, char *argv[]) {
             //exec <argv[optind]>
             char *args[2];
             string program = argv[optind]; //get filename param that we will exec
+            program = (string)"./" + program.c_str(); //adds dot slash prefix
             args[0] = (char*)program.c_str(); //convert type for use in exec
             args[1] = NULL; //array must end in NULL to avoid seg fault
             if( execvp(args[0],args) == -1 ) {

@@ -14,9 +14,9 @@ The following parameter <pr_limit> is required and has a max of 20.
   Once the limit is reached, the parent will wait until a child terminates 
   before launching another.
 
-All parameters following <pr_limit> are executables to be launched.  A dot slash may be required.
+All parameters following <pr_limit> are executables to be launched.
   Example usage: 
-    $  ./proc_fan -n 3 ./testsim1 ./testsim2 ./testsim3 ./testsim4
+    $  ./proc_fan -n 3 testsim1 testsim2 testsim3 testsim4
 
     In the above example, proc_fan will exec 3 processes: testsim1, testsim2, and testsim3.
     Once one of these processes terminates, it will exec testsim4.
@@ -24,6 +24,6 @@ All parameters following <pr_limit> are executables to be launched.  A dot slash
     
 Limitations:
   -Does not support parameters for exec'd programs.
-    For example, $  ./proc_fan -n 5 ./testsim 4 5
-      will not work, because 4 and 5 will be treated as programs.  
-  -Does not support reading commands from a file.
+    For example, $  ./proc_fan -n 5 testsim 4 5
+      will not work, because '4' and '5' will be treated as programs.  
+  -Does not support reading from a file.
