@@ -16,20 +16,20 @@
 using namespace std;
 
 void printUsage() {
-  cout << "Usage: proc_fan -n <number of processes>" << endl;
+  cout << "Usage: proc_fan -n <number of processes> <process name>" << endl;
   exit(1);
 }
 
 void printError() {
   cout << "Generic error message." << endl;
-}
+}  
 
 //arc is argument count, argv is array that contains the specific args
 int main(int argc, char *argv[]) {
 
-  int option;       // user command line option
   int pr_count = 0; // number of current active children
   int pr_limit = 3; // max  children allowed to execute at a time (when one ends, launch another)
+  int option;       // user command line option
   
   while ( (option = getopt(argc, argv, "n:") ) != -1 ) {
     
@@ -40,28 +40,40 @@ int main(int argc, char *argv[]) {
 
     switch(option) {
       case 'n': {
-          int n = atoi(argv[(optind-1)]); //for parsing char array to int
-          //for-loop encasing switch? doesnt getopt already loop through all args?
-          /*
-          cout << "argv[optind-1] as n: " <<  n << endl;
-          cout << "argv[optind-1]     : " << (optind-1) << endl;
-          cout << "argv[optind]       : " << argv[optind] << endl;
-          cout << "optind             : " << (optind) << endl;
+        
+        int n = atoi(argv[(optind-1)]); //for parsing char array to int
+        pr_limit = n;
+        if(pr_limit > 20) {
+          pr_limit = 20;
+        }
+        //cout << "pr_limit is " << pr_limit << endl;
+       
+        /* Fork it. Should return >= 0 if successful, -1 if error */
+        for(; optind < argc; optind++) {
+
+          if (pr_count == pr_limit) {
+            //cout << "Hit pr_limit.  Waiting." << endl;
+            wait(NULL);
+            --pr_count;
+            //cout << "pr_count is " << pr_count << endl;
+          }
           
-          // ARGV[OPTIND] IS THE FILENAME (PROCESS) THAT YOU CAN EXEC
-          */
-          
-          /* Fork it. Should return >= 0 if successful, -1 if error */
           pid_t pid = fork();
+          
+                  
           if(pid == -1) {
             perror("perror: fork failed."); 
           }
-          else if(pid == 0) {
-            //child
-            cout << "I am a child, pid: " << pid << endl;
+          else if (pid >= 0) {
+            pr_count++; //fork successful
+            // cout << "pr_count is " << pr_count << endl;
+          }
+          
+          if(pid == 0) {
+            /* child process */
+            // cout << "I am a child, pid: " << pid << endl;
             
             //exec <argv[optind]>
-            sleep(1); 
             char *args[2];
             string program = argv[optind]; //get filename param that we will exec
             args[0] = (char*)program.c_str(); //convert type for use in exec
@@ -69,76 +81,30 @@ int main(int argc, char *argv[]) {
             if( execvp(args[0],args) == -1 ) {
               perror("perror: exec.");
             }
-            
-            cout << "Child now ending (if you see this message, exec didnt work)." << endl;
             exit(0);
           }
           else if(pid > 0) {
-            //parent
-            cout << "I am a parent, pid: " << pid << endl;
-            wait(NULL);
-            cout << "Parent done waiting" << endl;
+            /* parent process */
+            // cout < "I am the parent, pid: " << pid << endl;
           }
-          
         }
+        
+      }//endof case
         break;
       case '?': 
-        perror("perror: case ?.");
+        printUsage(); 
         break;
       default:
         perror("perror: case default.");
         break;
-
-
     }
     
+    /* wait for any remaining child processes to finish */
+    pid_t wpid;
+    int status = 0;
+    while ((wpid = wait(&status)) > 0); 
   }
 
-
-
-
-
-
-
-
-
-/*  while ( (option = getopt(argc, argv, "N:n:") ) != -1 ) {
-    for(int i = 3; i <= argc; i++) {
-      switch(option) {
-        case 'N':
-        case 'n': {
-          int n = atoi(argv[(i-1)]);  //for parsing char array to int
-          //cout << "Fanning given process, " << argv[i] << ", " << n << " times :" << endl;
-        for(int j = 0; j < n; j++) {
-            pid_t pid = fork();
-            if(pid == -1) // child should return >= 0 if successful fork, -1 if error
-              {perror("error: fork failed.");}
-            else if(pid == 0) {
-              //cout << "I am a Child, PID: " << pid << endl;
-              
-              char *args[] = {"./fanwaitmsg","2", NULL};
-              execv("./fanwaitmsg",args);
-              
-              exit(0);
-            }
-            else if(pid > 0) {
-              //parent
-              //cout << "I am Parent, PID: "<< pid << endl;
-              wait(NULL);
-              //cout << "I am done waiting." << endl;
-            }
-              
-          }
-          break;
-        }     
-        default:
-          printUsage();
-          break;
-      }
-      //cout << endl;
-    }
-  }
-*/
   return 0;
 
 }
